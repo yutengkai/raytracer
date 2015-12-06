@@ -1,0 +1,50 @@
+----raytracer.cpp
+- shadows? line 189
+- shadeRay - line 217. call function recursively for reflection/refraction
+- todo line 255
+
+----scene_object.cpp
+- todos
+
+----raytracer.h
+- optional: background - if you want a background, mofidy "initPixelBuffer()" on line 106
+- may be able to use line 117 on the todo on line 255 of raytracer.cpp
+- line 142 and 143 seem like they should be used for traversal. check if they are being used by default or if i have to implement them
+
+----light_source.cpp
+- todo - implement shade
+  - note: make sure traverseScene() is called before shade()
+
+
+
+order:
+- render()
+  - calls shadeRay()
+- shadeRay()
+  - calls traverseScene()
+  - calls computeShading()
+- traverseScene()
+  - calls intersect() -- work
+- computeShading()
+  - calls shade() -- work
+
+
+websites:
+
+http://www.ozone3d.net/tutorials/glsl_lighting_phong.php
+
+https://www.opengl.org/discussion_boards/showthread.php/177344-Newbee-needs-help-with-Phong-Shading
+
+http://www.kevinbeason.com/smallpt/
+
+// algorithm for shading
+	// https://www.cs.colorado.edu/~mcbryan/5229.03/mail/110.htm
+
+	// algorithm for intersection
+	// http://kylehalladay.com/blog/tutorial/math/2013/12/24/Ray-Sphere-Intersection.html
+
+
+http://stackoverflow.com/questions/13517872/is-this-plane-ray-intersection-code-correct
+
+// https://www.cs.unc.edu/~rademach/xroads-RT/RTarticle.html
+	//http://www.ozone3d.net/tutorials/glsl_lighting_phong.php
