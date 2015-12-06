@@ -39,12 +39,6 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	Point3D p3 = Point3D(-0.5, -0.5 ,0);
 	Point3D p4 = Point3D(0.5, -0.5 ,0);
 
-	Vector3D surfaceVec1 = p2 - p1;
-	Vector3D surfaceVec2 = p3 - p1;
-	Vector3D surfaceVec3 = p4 - p1;
-	Vector3D surfaceVec4 = p2 - p3;
-	Vector3D surfaceVec5 = p4 - p3;
-
 	Ray3D rayCopy = ray;
 
 	// transform the ray into object space
@@ -52,36 +46,47 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	rayCopy.origin = worldToModel * rayCopy.origin;
 	rayCopy.dir.normalize();
 
-	// if this value is zero, then the ray is parallel 
-	// to the plane and there is no intersection
-	if (std::abs(n.dot(rayCopy.dir)) > 0.0001f) {
-		Vector3D originVec = Vector3D(rayCopy.origin[0], rayCopy.origin[1], rayCopy.origin[2]);
-		const double t = n.dot(rayCopy.origin - p1) / n.dot(rayCopy.dir);
+	if (rayCopy.dir[2] == 0.0f ) {
+		ray.intersection.none = true;
+		return false;
+	} else if (rayCopy.dir[2] * rayCopy.origin[2] > 0.0f) {
+		// this means, either the origin is above the plane and 
+		// the direction goes away from the plane, or the origin
+		// is below the plane and the direction goes away from the plane
+		ray.intersection.none = true;
+		return false;
+	}
 
-		if (t >= 0.0f) {
-			// intersection with plane!
+	// using the parametric equation for the plane, solve for t
+	// x and why values cancel out since x and y values of the normal 
+	// are zero, leaving only the z value
+	// normal[z] * (ray.origin[z] + t*ray.dir[z])
+	const double t = -(rayCopy.origin[2]/(rayCopy.dir[2]));
 
-			// make sure there isn't already a t_value that is closer to the ray's origin
-			//if ((ray.intersection.t_value &&  t < ray.intersection.t_value) || !ray.intersection.t_value) {
-				//std::cout << !ray.intersection.t_value << "\n";
-			//std::cout << t << "\n";
-				Point3D interPoint = rayCopy.origin + t*rayCopy.dir;
+	if (t >= 0.0f) {
+		// intersection with plane!
 
-				// check if intersection is inside the given boundaries or outside
-				//Vector3D planeToRayOrigin = rayCopy.origin - interPoint;
+		// make sure there isn't already a t_value that is closer to the ray's origin
+		//if ((ray.intersection.t_value &&  t < ray.intersection.t_value) || !ray.intersection.t_value) {
+			//std::cout << !ray.intersection.t_value << "\n";
+		//std::cout << t << "\n";
+			Point3D interPoint = rayCopy.origin + t*rayCopy.dir;
 
-				//if (n.dot(planeToRayOrigin) <= 0.0f) {
-					// inside!
-					ray.intersection.t_value = t;
-					ray.intersection.point = modelToWorld * interPoint;
+			// check if intersection is inside the given boundaries or outside
+			//Vector3D planeToRayOrigin = rayCopy.origin - interPoint;
 
-					// transform the normal to world coords
-					ray.intersection.normal = transNorm(worldToModel, n);
-					ray.intersection.normal.normalize();
-					ray.intersection.none = false;
-				//}
-			//}
-		}
+			if (interPoint[0] >= -0.5 && interPoint[0] <= 0.5 && interPoint[1] >= -0.5 && interPoint[1] <= 0.5) {
+				//std::cout << t << "\n";
+				// inside!
+				ray.intersection.t_value = t;
+				ray.intersection.point = modelToWorld * interPoint;
+
+				// transform the normal to world coords
+				ray.intersection.normal = transNorm(worldToModel, -n);
+				ray.intersection.normal.normalize();
+				ray.intersection.none = false;
+			}
+		//}
 	}
 
 	return !ray.intersection.none;

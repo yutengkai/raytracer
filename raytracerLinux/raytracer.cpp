@@ -260,7 +260,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 
 			ray.dir = viewToWorld * ray.dir;
 			ray.origin = viewToWorld * ray.origin;
-
+			
 			//ray.dir.normalize();
 			view.normalize();
 
